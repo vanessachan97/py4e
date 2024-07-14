@@ -332,7 +332,7 @@ section. For more detail on data modeling you can start with:
 <http://en.wikipedia.org/wiki/Relational_model>
 
 \index{SQL!CREATE}
-Lets say for our tracks database we wanted to track the name of the
+Let's say for our tracks database we wanted to track the name of the
 `artist` for each track in addition to the `title` and number of
 plays for each track.  A simple approach might be to simply add another
 column to the database called `artist` and put the name of the artist
@@ -380,7 +380,7 @@ reference the actual data using this key. Especially if the multiple
 entries refer to the same object.
 
 To demonstrate the slippery slope we are going down by assigning string columns
-to out database model, think about how we would change the data model if we
+to our database model, think about how we would change the data model if we
 wanted to keep track of the eye color of our artists?  Would we do this?
 
 ~~~~ {.sql}
@@ -394,19 +394,19 @@ INSERT INTO Track (title, plays, artist, eyes)
 ~~~~
 
 Since Frank Sinatra recorded over 1200 songs, are we really going
-to put the string 'Blue' in 1200 rows in our `Track` table.  And
+to put the string 'Blue' in 1200 rows in our `Track` table?  And
 what would happen if we decided his eye color was 'Light Blue'? Something
 just does not feel right.
 
 The correct solution is to create a table
-for the each `Artist` and store all the data about the artist in
+for each `Artist` and store all the data about the artist in
 that table.  And then somehow we need to make a connection between
 a row in the `Track` table to a row in the `Artist` table.  Perhaps
 we could call this "link" between two "tables" a "relationship" between
 two tables. And that is exactly what database experts decided to all these
 links.
 
-Lets make an `Artist` table as follows:
+Let's make an `Artist` table as follows:
 
 ~~~~ {.sql}
 DROP TABLE IF EXISTS Artist;
@@ -418,7 +418,7 @@ INSERT INTO Artist (name, eyes)
 \index{primary key}
 Now we have two tables but we need a way to *link* rows in the two tables.
 To do this, we need what we call 'keys'.  These keys will just be integer numbers
-that we can use to lookup a row in different table.  If we are going to make
+that we can use to lookup a row in a different table.  If we are going to make
 links to rows inside of a table, we need to add a *primary key* to the rows in the
 table.  By convention we usually name the primary key column 'id'.  So our
 `Artist` table looks as follows:
@@ -432,7 +432,7 @@ INSERT INTO Artist (id, name, eyes)
 
 Now we have a row in the table for 'Frank Sinatra' (and his eye color) and
 a primary key of '42' to use to link our tracks to him.  So we alter our
-Track table as follows:
+`Track` table as follows:
 
 ~~~~ {.sql}
 DROP TABLE IF EXISTS Track;
@@ -463,9 +463,9 @@ FROM Track JOIN Artist
 ON Track.artist_id = Artist.id;
 ~~~~
 
-The `JOIN` clause includes an `ON` condition that defines how the rows are to
-to be connected.  For each row in `Track` add the data from `Artist` from
-the row where `artist_id` `Track` table matches the `id` from the `Artist`
+The `JOIN` clause includes an `ON` condition that defines how the rows are 
+to be connected.  For each row in `Track`, add the data from `Artist` from
+the row where `artist_id` in the `Track` table matches the `id` from the `Artist`
 table.
 
 The output would be:
@@ -479,7 +479,7 @@ While it might seem a little clunky and your instincts might tell you that
 it would be faster just to keep the data in one table, it turns out the
 the limit on database performance is how much data needs to be scanned
 when retrieving a query.  While the details are very complex, integers
-are a lot smaller than strings (especially Unicode) and far quicker to
+are a lot smaller than strings (especially Unicode) and far quicker
 to move and compare.
 
 Data model diagrams
@@ -505,8 +505,8 @@ a notation added to the end of each line indicating the nature of the relationsh
 <https://en.wikipedia.org/wiki/Entity-relationship_model>
 
 In this case, "many" tracks can be associated with each artist.  So the track end
-is shown with the crow's foot spread out indicating it is the" "many" end.  The
-artist end is shown with a vertical like that indicates "one".  There will be "many"
+is shown with the crow's foot spread out indicating it is the "many" end.  The
+artist end is shown with a vertical line that indicates "one".  There will be "many"
 artists in general, but the important aspect is that for each artist there will be
 many tracks.  And each of those artists may be associated with multiple tracks.
 
@@ -517,7 +517,7 @@ the "many" end and the *primary key* is at the "one" end.
 Since the pattern of foreign and primary key placement is so consistent and
 follows the "many" and "one" ends of the lines, we never include
 either the primary or foreign key columns in our diagram of the data model
-as shown in the second diagram as shown in Figure \ref{figo2m}.
+as shown in the second diagram of Figure \ref{figo2m}.
 The columns are thought of as "implementation detail" to capture the nature of
 the relationship details and not an essential part of the data being modeled.
 
@@ -531,7 +531,7 @@ Automatically creating primary keys
 \index{Auto increment}
 \index{SQL!UNIQUE}
 In the above example, we arbitrarily assigned Frank the primary key of 42.
-However when we are inserting millions or rows, it is nice to have the database
+However when we are inserting millions of rows, it is nice to have the database
 automatically generate the values for the id column.  We do this by declaring
 the `id` column as a `PRIMARY KEY` and leave out the `id` value when inserting the
 row:
@@ -574,7 +574,7 @@ sqlite> CREATE TABLE Track (id INTEGER PRIMARY KEY,
 ~~~~
 
 Note that the `artist_id` value is the new auto-assigned row in the
-`Artist` table and that while we added an `INTEGER PRIMARY KEY` to the
+`Artist` table and that while we added an `INTEGER PRIMARY KEY` to
 the `Track` table, we did not include `id` in the list of fields
 on the `INSERT` statements into the `Track` table.  Again
 this tells the database to choose a unique value for us for the
@@ -604,8 +604,8 @@ Logical keys for fast lookup
 \index{Logical key}
 \index{SQL!INDEX}
 If we had a table full of artists and a table full of tracks, each with a
-foreign key link to a row in a table full of artists and we wanted to list
-all the tracks that were sung by 'Frank Sinatra' as follows:
+foreign key link to a row in a table full of artists, and we wanted to list
+all the tracks that were sung by 'Frank Sinatra' we would do as follows:
 
 ~~~~
 SELECT title, plays, name, eyes
@@ -680,8 +680,8 @@ sqlite> SELECT id FROM Artist WHERE name='Frank Sinatra';
 sqlite>
 ~~~~
 
-By combining an `INSERT OR IGNORE` and a `SELECT` we can insert a new
-record if the name is not already there and whether or not the record
+By combining an `INSERT OR IGNORE` and a `SELECT`, we can insert a new
+record if the name is not already there and, whether or not the record
 is already there, retrieve the *primary* key of the record.
 
 ~~~~
@@ -749,8 +749,8 @@ CREATE TABLE Track (
 ~~~~
 
 We are adding the `UNIQUE` keyword to `TEXT` columns that we would like
-to have a uniqueness constraint that we will use in `INSERT IGNORE` statements.
-This is more succinct that separate `CREATE INDEX` statements but has the
+to have a uniqueness const239960for later use in `INSERT IGNORE` statements.
+This is more succinct than separate `CREATE INDEX` statements but has the
 same effect.
 
 With these tables in place, we write the following code `tracks_csv.py`
@@ -871,7 +871,7 @@ Many to many relationships in databases
 \index{Many to many relationship}
 \index{Crow's foot diagram}
 Some data relationships cannot be modeled by a simple one-to-many relationship.
-For example, lets say we are going to build a data model for a course management
+For example, let's say we are going to build a data model for a course management
 system.  There will be courses, users, and rosters.   A user can be on the roster
 for many courses and a course will have many users on its roster.
 
@@ -881,7 +881,7 @@ ends of the lines.  The problem is how to *implement* the relationship using pri
 foreign keys.
 
 Before we explore how we implement many-to-many relationships, let's see if we could hack
-something up by extending a one-to many relationship.
+something up by extending a one-to-many relationship.
 
 ![A Many to Many Relationship\label{figm2m}](height=1.5in@../images/many-to-many)
 
@@ -900,7 +900,7 @@ support arrays but arrays do not scale well. NoSQL databases use arrays and
 data replication but at a cost of database integrity. NoSQL is a story for another course
 https://www.pg4e.com/ ]
 
-Or we could just make long string and concatenate all the `User`
+Or we could just make a long string and concatenate all the `User`
 primary keys into a long string separated by commas.
 
 ~~~~ {.sql}
@@ -915,7 +915,7 @@ VALUES( 'si311', '1,3,4,5,6,9,14');
 ~~~~
 
 This would be very inefficient because as the course roster grows in size
-and the number of courses increases it becomes quite expensive to figure out
+and the number of courses increases, it becomes quite expensive to figure out
 which courses have student 14 on their roster.
 
 ![A Many to Many Connector Table\label{figm2mvrb}](height=1.5in@../images/many-to-many-verbose)
@@ -957,7 +957,7 @@ CREATE TABLE Member (
 
 Following our naming convention, `Member.user_id` and `Member.course_id` are foreign
 keys pointing at the corresponding rows in the `User` and `Course` tables.  Each entry
-in the member table links a row in the `User` table to a row in the `Course` table by
+in the member table links to a row in the `User` table to a row in the `Course` table by
 going *through* the `Member` table.
 
 \index{SQL!Constraint}
@@ -965,8 +965,8 @@ We indicate that the *combination* of `course_id` and `user_id` is the `PRIMARY 
 for the `Member` table, also creating an uniqueness constraint for a `course_id` / `user_id`
 combination.
 
-Now lets say we need to insert a number of students into the rosters of a number of courses.
-Lets assume the data comes to us in a JSON-formatted file with records like this:
+Now let's say we need to insert a number of students into the rosters of a number of courses.
+Let's assume the data comes to us in a JSON-formatted file with records like this:
 
 ~~~~
 [
@@ -986,7 +986,7 @@ Lets assume the data comes to us in a JSON-formatted file with records like this
 
 \index{JSON!parse}
 We could write code as follows to read the JSON file and insert the members of each
-course roster into the database using the following code:
+course roster into the database:
 
 ~~~~ {.python}
 import json
@@ -1062,7 +1062,7 @@ sqlite>
 ~~~~
 
 You can see the three tables from left to right - `Course`, `Member`,
-and `User` and you can see the connections between the primary keys and
+and `User` - and you can see the connections between the primary keys and
 foreign keys in each row of output.
 
 Modeling data at the many-to-many connection
@@ -1077,7 +1077,7 @@ simple learning management system, we will also need to understand the *role*
 that each user is assigned in each course.
 
 If we first try to solve this by adding an "instructor" flag to the `User` table,
-we will find that this does not work because a user can be a instructor in one
+we will find that this does not work because a user can be an instructor in one
 course and a student in another course.  If we add an `instructor_id` to
 the `Course` table it will not work because a course can have multiple
 instructors.  And there is no one-to-many hack that can deal with the fact that
@@ -1086,7 +1086,7 @@ the number of roles will expand into roles like Teaching Assistant or Parent.
 But if we simply add a `role` column to the `Member` table - we can represent
 a wide range of roles, role combinations, etc.
 
-Lets change our member table as follows:
+Let's change our member table as follows:
 
 ~~~~ {.sql}
 DROP TABLE Member;
@@ -1100,7 +1100,7 @@ CREATE TABLE Member (
 ~~~~
 
 For simplicity, we will decide that zero in the role means "student" and one in the
-`role` means instructor.  Lets assume our JSON data is augmented with the role as
+`role` means instructor.  Let's assume our JSON data is augmented with the role as
 follows:
 
 ~~~~
